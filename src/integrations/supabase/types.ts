@@ -142,7 +142,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      list_group_cron_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          job_name: string
+          schedule: string
+          command: string
+          active: boolean
+        }[]
+      }
       scrape_all_meetup_groups: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      setup_individual_group_crons: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
