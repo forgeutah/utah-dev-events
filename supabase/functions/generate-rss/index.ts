@@ -38,6 +38,8 @@ serve(async (req) => {
     const selectedGroups = url.searchParams.get('groups')?.split(',').filter(Boolean) || [];
     const selectedTags = url.searchParams.get('tags')?.split(',').filter(Boolean) || [];
 
+    console.log('RSS Feed requested with filters:', { selectedGroups, selectedTags });
+
     const supabase = createClient(
       "https://gocvjqljtcxtcrwvfwez.supabase.co",
       Deno.env.get('SUPABASE_ANON_KEY') || ""
@@ -79,10 +81,13 @@ serve(async (req) => {
       throw error;
     }
 
+    console.log(`Fetched ${events?.length || 0} events from database`);
+
     // Filter events based on selected groups and tags using OR logic
     const filteredEvents = events?.filter((event: any) => {
       // Only show event if group is null (unlisted) or group.status is approved
       if (event.groups && event.groups.status !== "approved") {
+        console.log('Event filtered out due to group status:', event.title);
         return false;
       }
       
@@ -104,9 +109,24 @@ serve(async (req) => {
       const matchesTag = selectedTags.length === 0 || 
         eventTagsToCheck.some((tag: string) => selectedTags.includes(tag));
       
-      // Return true if event matches ANY of the selected groups OR ANY of the selected tags
-      return matchesGroup || matchesTag;
+      console.log('Filter check for event:', event.title, {
+        groupId: event.group_id,
+        eventTags: event.tags,
+        groupTags: event.groups?.tags,
+        selectedGroups,
+        selectedTags,
+        matchesGroup,
+        matchesTag,
+        finalResult: matchesGroup && matchesTag
+      });
+      
+      // Event must match BOTH the group filter AND the tag filter
+      // If no group filter is selected, matchesGroup will be true
+      // If no tag filter is selected, matchesTag will be true
+      return matchesGroup && matchesTag;
     }) || [];
+
+    console.log(`Filtered down to ${filteredEvents.length} events after applying filters`);
 
     // Generate RSS items
     const rssItems = filteredEvents.map((event: any) => {
@@ -139,6 +159,8 @@ serve(async (req) => {
 ${rssItems}
   </channel>
 </rss>`;
+
+    console.log('Generated RSS feed with', filteredEvents.length, 'events');
 
     return new Response(rssContent, {
       status: 200,
