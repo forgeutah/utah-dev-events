@@ -142,6 +142,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      scrape_all_meetup_groups: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       test_scrape_single_meetup: {
         Args: { target_group_id: string }
         Returns: Json
