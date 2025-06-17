@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.scrape-meetup-events]
 verify_jwt = false
+
+[functions.scrape-single-meetup]
+verify_jwt = false
