@@ -83,7 +83,7 @@ serve(async (req) => {
 
     console.log(`Fetched ${events?.length || 0} events from database`);
 
-    // Filter events based on selected groups and tags using OR logic
+    // Filter events based on the specified logic
     const filteredEvents = events?.filter((event: any) => {
       // Only show event if group is null (unlisted) or group.status is approved
       if (event.groups && event.groups.status !== "approved") {
@@ -97,8 +97,7 @@ serve(async (req) => {
       }
       
       // Check if event matches any selected group
-      const matchesGroup = selectedGroups.length === 0 || 
-        (event.group_id && selectedGroups.includes(event.group_id));
+      const matchesGroup = event.group_id && selectedGroups.includes(event.group_id);
       
       // Check if event matches any selected tag
       // Use event tags if available, otherwise fall back to group tags
@@ -106,8 +105,21 @@ serve(async (req) => {
         ? event.tags 
         : (event.groups?.tags || []);
       
-      const matchesTag = selectedTags.length === 0 || 
-        eventTagsToCheck.some((tag: string) => selectedTags.includes(tag));
+      const matchesTag = eventTagsToCheck.some((tag: string) => selectedTags.includes(tag));
+      
+      // Apply filtering logic based on what filters are selected
+      let shouldInclude = false;
+      
+      if (selectedGroups.length > 0 && selectedTags.length > 0) {
+        // Both filters selected: show events from selected groups OR events with selected tags
+        shouldInclude = matchesGroup || matchesTag;
+      } else if (selectedGroups.length > 0) {
+        // Only group filters selected: show events from selected groups
+        shouldInclude = matchesGroup;
+      } else if (selectedTags.length > 0) {
+        // Only tag filters selected: show events with selected tags
+        shouldInclude = matchesTag;
+      }
       
       console.log('Filter check for event:', event.title, {
         groupId: event.group_id,
@@ -117,13 +129,10 @@ serve(async (req) => {
         selectedTags,
         matchesGroup,
         matchesTag,
-        finalResult: matchesGroup && matchesTag
+        finalResult: shouldInclude
       });
       
-      // Event must match BOTH the group filter AND the tag filter
-      // If no group filter is selected, matchesGroup will be true
-      // If no tag filter is selected, matchesTag will be true
-      return matchesGroup && matchesTag;
+      return shouldInclude;
     }) || [];
 
     console.log(`Filtered down to ${filteredEvents.length} events after applying filters`);
