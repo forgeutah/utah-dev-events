@@ -23,9 +23,8 @@ interface ScrapeResponse {
 }
 
 interface RequestBody {
-  meetup_url: string;
+  group_id: string; // Required: group ID to lookup meetup URL
   max_events?: number;
-  group_id?: string; // Optional: if provided, will link events to this group
 }
 
 // Function to convert UTC to Mountain Time
@@ -67,11 +66,11 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Parse request body
-    const { meetup_url, max_events = 3, group_id }: RequestBody = await req.json()
+    const { group_id, max_events = 3 }: RequestBody = await req.json()
 
-    if (!meetup_url) {
+    if (!group_id) {
       return new Response(
-        JSON.stringify({ error: 'meetup_url is required' }),
+        JSON.stringify({ error: 'group_id is required' }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400,
@@ -79,27 +78,45 @@ serve(async (req) => {
       )
     }
 
-    console.log(`Starting event scraping for: ${meetup_url}`)
+    console.log(`Starting event scraping for group: ${group_id}`)
 
-    let targetGroupId = group_id;
+    // Lookup the group and get the meetup_url
+    const { data: group, error: groupError } = await supabase
+      .from('groups')
+      .select('meetup_link, name')
+      .eq('id', group_id)
+      .single()
 
-    // If no group_id provided, try to find existing group by meetup_link
-    if (!targetGroupId) {
-      const { data: existingGroups, error: groupError } = await supabase
-        .from('groups')
-        .select('id')
-        .eq('meetup_link', meetup_url)
-        .limit(1)
-
-      if (groupError) {
-        console.error('Error checking for existing group:', groupError)
-      } else if (existingGroups && existingGroups.length > 0) {
-        targetGroupId = existingGroups[0].id
-        console.log(`Found existing group: ${targetGroupId}`)
-      } else {
-        console.log('No existing group found for this meetup URL')
-      }
+    if (groupError) {
+      console.error('Error fetching group:', groupError)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to fetch group', 
+          details: groupError.message 
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 404,
+        }
+      )
     }
+
+    if (!group?.meetup_link) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'No meetup_link found for this group',
+          group_id,
+          group_name: group?.name 
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
+
+    const meetup_url = group.meetup_link
+    console.log(`Found meetup URL for group "${group.name}": ${meetup_url}`)
 
     try {
       // Call the scraping service
@@ -154,7 +171,7 @@ serve(async (req) => {
         }
 
         const eventData = {
-          group_id: targetGroupId,
+          group_id: group_id,
           title: scrapedEvent.title,
           description: scrapedEvent.description,
           event_date: eventDate,
@@ -198,9 +215,10 @@ serve(async (req) => {
       }
 
       const summary = {
+        group_id,
+        group_name: group.name,
         meetup_url,
         max_events,
-        group_id: targetGroupId,
         eventsScraped: scrapeData.events?.length || 0,
         eventsCreated,
         eventsUpdated,
@@ -219,11 +237,12 @@ serve(async (req) => {
       )
 
     } catch (scrapeError) {
-      console.error(`Error scraping meetup ${meetup_url}:`, scrapeError)
+      console.error(`Error scraping meetup for group ${group_id}:`, scrapeError)
       return new Response(
         JSON.stringify({ 
           error: 'Scraping failed', 
           details: scrapeError.message,
+          group_id,
           meetup_url 
         }),
         {
@@ -242,7 +261,7 @@ serve(async (req) => {
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
+      status: 500,
       }
     )
   }
