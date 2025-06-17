@@ -142,7 +142,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      test_scrape_single_meetup: {
+        Args: { target_group_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
