@@ -117,13 +117,13 @@ serve(async (req) => {
       const groupName = event.groups?.name || 'Unlisted Group';
       const description = event.description ? escapeICalText(event.description) : '';
       const location = event.location ? escapeICalText(event.location) : '';
-      const title = escapeICalText(event.title);
+      const prefixedTitle = escapeICalText(`${groupName}: ${event.title}`);
 
       return `BEGIN:VEVENT
 UID:${event.id}@utahdevevents.com
 DTSTART:${startDate}
 DTEND:${endDate}
-SUMMARY:${title}
+SUMMARY:${prefixedTitle}
 DESCRIPTION:${description}\\n\\nGroup: ${groupName}${event.tags ? `\\n\\nTags: ${event.tags.join(', ')}` : ''}
 LOCATION:${location}
 STATUS:CONFIRMED

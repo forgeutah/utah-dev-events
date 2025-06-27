@@ -143,11 +143,12 @@ serve(async (req) => {
       const groupName = event.groups?.name || 'Unlisted Group';
       const description = event.description ? escapeXml(event.description) : '';
       const location = event.location ? escapeXml(event.location) : '';
-      const title = escapeXml(event.title);
+      const originalTitle = escapeXml(event.title);
+      const prefixedTitle = escapeXml(`${groupName}: ${event.title}`);
       const eventUrl = event.link || `https://utahdevevents.com/#event-${event.id}`;
 
       return `    <item>
-      <title>${title}</title>
+      <title>${prefixedTitle}</title>
       <link>${escapeXml(eventUrl)}</link>
       <description>${description}${location ? `\n\nLocation: ${location}` : ''}${event.tags ? `\n\nTags: ${event.tags.join(', ')}` : ''}\n\nGroup: ${groupName}</description>
       <pubDate>${eventDate}</pubDate>

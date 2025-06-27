@@ -155,13 +155,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      scrape_single_meetup: {
+        Args: { target_group_id: string }
+        Returns: Json
+      }
       setup_individual_group_crons: {
         Args: Record<PropertyKey, never>
         Returns: string
-      }
-      test_scrape_single_meetup: {
-        Args: { target_group_id: string }
-        Returns: Json
       }
     }
     Enums: {
