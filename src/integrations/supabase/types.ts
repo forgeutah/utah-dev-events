@@ -20,7 +20,7 @@ export type Database = {
           end_time: string | null
           event_date: string
           external_id: string | null
-          group_id: string
+          group_id: string | null
           id: string
           image: string | null
           link: string | null
@@ -44,7 +44,7 @@ export type Database = {
           end_time?: string | null
           event_date: string
           external_id?: string | null
-          group_id: string
+          group_id?: string | null
           id?: string
           image?: string | null
           link?: string | null
@@ -68,7 +68,7 @@ export type Database = {
           end_time?: string | null
           event_date?: string
           external_id?: string | null
-          group_id?: string
+          group_id?: string | null
           id?: string
           image?: string | null
           link?: string | null
