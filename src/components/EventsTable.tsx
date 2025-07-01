@@ -154,9 +154,7 @@ export function EventsTable({ events, isLoading, error, visibleCount, onShowMore
                 </TableCell>
                 
                 <TableCell className="text-muted-foreground">
-                  {event.groups?.name ?? (
-                    <span className="italic text-xs">Unlisted Group</span>
-                  )}
+                  {event.groups?.name || ""}
                 </TableCell>
                 
                 <TableCell className="text-muted-foreground">

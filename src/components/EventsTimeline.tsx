@@ -249,14 +249,12 @@ export function EventsTimeline({ events, isLoading, error, visibleCount, onShowM
                   {/* Event details */}
                   <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
                     {/* Group */}
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      <span>
-                        {event.groups?.name ?? (
-                          <span className="italic">Unlisted Group</span>
-                        )}
-                      </span>
-                    </div>
+                    {event.groups?.name && (
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        <span>{event.groups.name}</span>
+                      </div>
+                    )}
 
                     {/* Location */}
                     <div className="flex items-center gap-2">
