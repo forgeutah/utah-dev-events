@@ -116,7 +116,7 @@ serve(async (req) => {
       
       const groupName = event.groups?.name || 'Unlisted Group';
       const description = event.description ? escapeICalText(event.description) : '';
-      const location = event.location ? escapeICalText(event.location) : '';
+      const location = event.location ? escapeICalText(event.location).replace(/https?:\/\/[^\s]+/g, '') : '';
       const prefixedTitle = escapeICalText(`${groupName}: ${event.title}`);
 
       return `BEGIN:VEVENT
