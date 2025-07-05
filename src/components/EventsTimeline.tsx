@@ -252,7 +252,7 @@ export function EventsTimeline({ events, isLoading, error, visibleCount, onShowM
                     {event.groups?.name && (
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4" />
-                        <span>{event.groups.name}</span>
+                        <span className="font-semibold">{event.groups.name}</span>
                       </div>
                     )}
 
