@@ -259,16 +259,7 @@ export function EventsTimeline({ events, isLoading, error, visibleCount, onShowM
                     {/* Location */}
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
-                      {displayLocation && displayLocation !== "TBD" && hasAddressInfo ? (
-                        <button
-                          onClick={() => openGoogleMaps(event)}
-                          className="text-primary hover:text-primary/80 underline underline-offset-2 cursor-pointer transition-colors"
-                        >
-                          {displayLocation}
-                        </button>
-                      ) : (
-                        <span>{displayLocation || "TBD"}</span>
-                      )}
+                      <span>{displayLocation || "TBD"}</span>
                     </div>
                   </div>
 
