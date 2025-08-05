@@ -10,12 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useEventFiltering } from "@/hooks/useEventFiltering";
 import { generateICalUrl, generateRssUrl } from "@/utils/eventUrls";
-import { EventsSectionProps } from "@/types/events";
+import { EventsSectionProps, UtahRegion } from "@/types/events";
 
 export default function EventsSection({ events, groups, isLoading, error, allTags }: EventsSectionProps) {
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedRegions, setSelectedRegions] = useState<UtahRegion[]>([]);
+  const [excludeOnline, setExcludeOnline] = useState(false);
   const [visibleEventCount, setVisibleEventCount] = useState(10);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [showRssModal, setShowRssModal] = useState(false);
@@ -27,7 +29,9 @@ export default function EventsSection({ events, groups, isLoading, error, allTag
     allTags,
     selectedGroups,
     selectedTags,
-    selectedDate
+    selectedDate,
+    selectedRegions,
+    excludeOnline
   );
 
   const handleShowMore = () => {
@@ -48,6 +52,10 @@ export default function EventsSection({ events, groups, isLoading, error, allTag
                 allAvailableTags={allAvailableTags}
                 selectedTags={selectedTags}
                 onTagSelectionChange={setSelectedTags}
+                selectedRegions={selectedRegions}
+                onRegionSelectionChange={setSelectedRegions}
+                excludeOnline={excludeOnline}
+                onExcludeOnlineChange={setExcludeOnline}
                 onCalendarModalOpen={() => setShowCalendarModal(true)}
                 onRssModalOpen={() => setShowRssModal(true)}
               />
