@@ -21,17 +21,31 @@ interface ScrapeResponse {
   events: ScrapedEvent[];
 }
 
-// University event sources
-const UNIVERSITY_SOURCES = [
+// Misc website event sources (corporate, coworking, community)
+const MISC_WEBSITE_SOURCES = [
   {
-    name: "BYU Computer Science Department",
-    url: "https://cs.byu.edu/events/",
-    group_name: "BYU CS Department"
+    name: "Kiln Coworking Space",
+    url: "https://kiln.utah.gov/events/",
+    group_name: "Kiln Coworking",
+    tags: ['coworking', 'government', 'entrepreneurship']
   },
   {
-    name: "University of Utah CS Department", 
-    url: "https://www.cs.utah.edu/events/",
-    group_name: "U of U CS Department"
+    name: "WeWork Salt Lake City",
+    url: "https://www.wework.com/l/salt-lake-city--UT/events",
+    group_name: "WeWork SLC",
+    tags: ['coworking', 'networking', 'business']
+  },
+  {
+    name: "Silicon Slopes Events",
+    url: "https://siliconslopestechsummit.com/events/",
+    group_name: "Silicon Slopes",
+    tags: ['conference', 'networking', 'summit']
+  },
+  {
+    name: "Utah Geek Events",
+    url: "https://utahgeekevents.com/events/",
+    group_name: "Utah Geek Events",
+    tags: ['community', 'technology', 'developer']
   }
 ]
 
@@ -61,7 +75,7 @@ function convertUtcToMountainTime(utcDateTimeString: string): { eventDate: strin
   return { eventDate, startTime };
 }
 
-async function getOrCreateGroup(supabase: any, groupName: string) {
+async function getOrCreateGroup(supabase: any, groupName: string, tags: string[]) {
   // Check if group exists
   const { data: existingGroups, error: checkError } = await supabase
     .from('groups')
@@ -83,8 +97,8 @@ async function getOrCreateGroup(supabase: any, groupName: string) {
     .from('groups')
     .insert([{
       name: groupName,
-      status: 'approved', // Auto-approve university groups
-      tags: ['university', 'education', 'computer-science']
+      status: 'approved', // Auto-approve misc website groups
+      tags: tags
     }])
     .select('id')
     .single()
@@ -110,19 +124,19 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    console.log('Starting university event scraping process...')
+    console.log('Starting misc websites event scraping process...')
 
     let totalEventsProcessed = 0
     let totalEventsCreated = 0
     let totalEventsUpdated = 0
 
-    // Process each university source
-    for (const source of UNIVERSITY_SOURCES) {
-      console.log(`Processing university source: ${source.name}`)
+    // Process each misc website source
+    for (const source of MISC_WEBSITE_SOURCES) {
+      console.log(`Processing misc website source: ${source.name}`)
 
       try {
-        // Get or create group for this university source
-        const groupId = await getOrCreateGroup(supabase, source.group_name)
+        // Get or create group for this source
+        const groupId = await getOrCreateGroup(supabase, source.group_name, source.tags)
 
         // Call the scraping service with graceful error handling
         let scrapeData: ScrapeResponse | null = null
@@ -157,25 +171,49 @@ serve(async (req) => {
           continue
         }
 
-        // Process each scraped event
+        // Process each scraped event with individual error handling
         for (const scrapedEvent of scrapeData.events || []) {
-          totalEventsProcessed++
+          try {
+            totalEventsProcessed++
 
-          // Convert UTC datetime to Mountain Time
-          const { eventDate, startTime } = convertUtcToMountainTime(scrapedEvent.time)
-          console.log(`Converted UTC time ${scrapedEvent.time} to Mountain Time: ${eventDate} ${startTime}`)
+            // Validate required fields
+            if (!scrapedEvent.url || !scrapedEvent.title) {
+              console.warn(`Skipping invalid event from ${source.name}: missing URL or title`)
+              continue
+            }
 
-          // Check if event already exists (by URL)
-          const { data: existingEvents, error: checkError } = await supabase
-            .from('events')
-            .select('id')
-            .eq('link', scrapedEvent.url)
-            .limit(1)
+            // Convert UTC datetime to Mountain Time
+            const { eventDate, startTime } = convertUtcToMountainTime(scrapedEvent.time)
+            console.log(`Converted UTC time ${scrapedEvent.time} to Mountain Time: ${eventDate} ${startTime}`)
 
-          if (checkError) {
-            console.error('Error checking existing event:', checkError)
-            continue
-          }
+            // DEDUPLICATION: Check if event already exists (by URL - primary dedup method)
+            const { data: existingEvents, error: checkError } = await supabase
+              .from('events')
+              .select('id')
+              .eq('link', scrapedEvent.url)
+              .limit(1)
+
+            if (checkError) {
+              console.error('Error checking existing event:', checkError)
+              continue
+            }
+
+            // DEDUPLICATION: Also check for similar titles on same date as secondary dedup
+            if (!existingEvents || existingEvents.length === 0) {
+              const { data: similarEvents, error: similarError } = await supabase
+                .from('events')
+                .select('id, title')
+                .eq('event_date', eventDate)
+                .ilike('title', `%${scrapedEvent.title.substring(0, 20)}%`)
+                .limit(3)
+
+              if (similarError) {
+                console.warn('Error checking for similar events:', similarError)
+              } else if (similarEvents && similarEvents.length > 0) {
+                console.log(`Found ${similarEvents.length} potentially similar events for "${scrapedEvent.title}" on ${eventDate}`)
+                // Continue anyway - let the main dedup logic handle it
+              }
+            }
 
           const eventData = {
             group_id: groupId,
@@ -187,8 +225,8 @@ serve(async (req) => {
             venue_name: scrapedEvent.venue_name,
             link: scrapedEvent.url,
             image: scrapedEvent.image_url,
-            status: 'approved', // Auto-approve university events
-            tags: ['university', 'education', 'computer-science']
+            status: 'approved', // Auto-approve misc website events
+            tags: source.tags
           }
 
           if (existingEvents && existingEvents.length > 0) {
@@ -217,22 +255,28 @@ serve(async (req) => {
               console.log(`Created event: ${scrapedEvent.title}`)
             }
           }
+          
+          } catch (eventError) {
+            console.error(`Error processing individual event from ${source.name}:`, eventError)
+            // Continue with next event
+            continue
+          }
         }
       } catch (error) {
-        console.error(`Error processing university source ${source.name}:`, error)
+        console.error(`Error processing misc website source ${source.name}:`, error)
         continue
       }
     }
 
     const summary = {
-      totalSources: UNIVERSITY_SOURCES.length,
+      totalSources: MISC_WEBSITE_SOURCES.length,
       totalEventsProcessed,
       totalEventsCreated,
       totalEventsUpdated,
-      message: 'University event scraping completed successfully'
+      message: 'Misc websites event scraping completed successfully'
     }
 
-    console.log('University scraping summary:', summary)
+    console.log('Misc websites scraping summary:', summary)
 
     return new Response(
       JSON.stringify(summary),
@@ -243,7 +287,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error in scrape-university-events function:', error)
+    console.error('Error in scrape-misc-websites function:', error)
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error', 

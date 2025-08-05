@@ -22,6 +22,7 @@ export const EventStats = ({ events, groups, filteredCount }: EventStatsProps) =
     luma: 0,
     eventbrite: 0,
     university: 0,
+    misc: 0,
     other: 0
   };
 
@@ -35,6 +36,13 @@ export const EventStats = ({ events, groups, filteredCount }: EventStatsProps) =
       sourceStats.eventbrite++;
     } else if (url.includes('cs.byu.edu') || url.includes('utah.edu')) {
       sourceStats.university++;
+    } else if (
+      url.includes('kiln.utah.gov') || 
+      url.includes('wework.com') || 
+      url.includes('siliconslopestechsummit.com') || 
+      url.includes('utahgeekevents.com')
+    ) {
+      sourceStats.misc++;
     } else {
       sourceStats.other++;
     }
@@ -52,6 +60,7 @@ export const EventStats = ({ events, groups, filteredCount }: EventStatsProps) =
     { name: 'Luma Events', count: sourceStats.luma, color: 'bg-purple-500' },
     { name: 'Eventbrite', count: sourceStats.eventbrite, color: 'bg-orange-500' },
     { name: 'Universities', count: sourceStats.university, color: 'bg-blue-500' },
+    { name: 'Misc Websites', count: sourceStats.misc, color: 'bg-green-500' },
     { name: 'Other', count: sourceStats.other, color: 'bg-gray-500' }
   ].filter(source => source.count > 0);
 
