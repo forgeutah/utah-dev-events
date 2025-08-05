@@ -1,7 +1,8 @@
 
 import { useMemo } from "react";
 import { parseISO, isSameDay, startOfToday } from "date-fns";
-import { Event, Group } from "@/types/events";
+import { Event, Group, UtahRegion } from "@/types/events";
+import { categorizeEventByRegion, isOnlineEvent } from "@/utils/locationUtils";
 
 export const useEventFiltering = (
   events: Event[],
@@ -9,7 +10,9 @@ export const useEventFiltering = (
   allTags: string[],
   selectedGroups: string[],
   selectedTags: string[],
-  selectedDate: Date | null
+  selectedDate: Date | null,
+  selectedRegions: UtahRegion[] = [],
+  excludeOnline: boolean = false
 ) => {
   // Extract all tags from groups and events combined
   const allAvailableTags = useMemo(() => {
@@ -30,7 +33,7 @@ export const useEventFiltering = (
     }) || [];
   }, [events]);
 
-  // Filter events based on selected groups, tags, and date using OR logic
+  // Filter events based on selected groups, tags, date, regions, and online status
   const filteredEvents = useMemo(() => {
     return upcomingEvents.filter((event: Event) => {
       console.log('Filtering event:', event.title, {
@@ -39,6 +42,8 @@ export const useEventFiltering = (
         groupTags: event.groups?.tags,
         selectedGroups,
         selectedTags,
+        selectedRegions,
+        excludeOnline,
         groupStatus: event.groups?.status
       });
 
@@ -57,9 +62,24 @@ export const useEventFiltering = (
         }
       }
       
-      // If no group or tag filters are selected, show all events (that passed the date filter)
+      // Filter out online events if excludeOnline is true
+      if (excludeOnline && isOnlineEvent(event)) {
+        console.log('Event filtered out - online event:', event.title);
+        return false;
+      }
+      
+      // Filter by selected regions
+      if (selectedRegions.length > 0) {
+        const eventRegion = categorizeEventByRegion(event);
+        if (!selectedRegions.includes(eventRegion)) {
+          console.log('Event filtered out due to region:', event.title, eventRegion);
+          return false;
+        }
+      }
+      
+      // If no group or tag filters are selected, show all events (that passed other filters)
       if (selectedGroups.length === 0 && selectedTags.length === 0) {
-        console.log('No filters selected, showing event:', event.title);
+        console.log('No group/tag filters selected, showing event:', event.title);
         return true;
       }
       
@@ -105,7 +125,7 @@ export const useEventFiltering = (
       console.log('Fallback case, showing event:', event.title);
       return true;
     });
-  }, [upcomingEvents, selectedGroups, selectedTags, selectedDate]);
+  }, [upcomingEvents, selectedGroups, selectedTags, selectedDate, selectedRegions, excludeOnline]);
 
   console.log('Final filtered events count:', filteredEvents.length);
 

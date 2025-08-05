@@ -21,13 +21,15 @@ interface MultiSelectDropdownProps {
   selectedGroups: string[];
   onSelectionChange: (groups: string[]) => void;
   placeholder?: string;
+  icon?: React.ReactNode;
 }
 
 export function MultiSelectDropdown({
   groups,
   selectedGroups,
   onSelectionChange,
-  placeholder = "Filter by groups"
+  placeholder = "Filter by groups",
+  icon
 }: MultiSelectDropdownProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,7 +62,8 @@ export function MultiSelectDropdown({
             variant="outline" 
             className="h-10 justify-between text-white border-border bg-transparent hover:bg-white/10 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
           >
-            <span>
+            <span className="flex items-center gap-2">
+              {icon}
               {selectedGroups.length === 0 
                 ? placeholder
                 : `${selectedGroups.length} selected`
