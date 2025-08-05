@@ -1,12 +1,11 @@
 -- Add cron jobs for new university and misc website scrapers
--- This will automatically schedule the new scraping functions
+-- IMPORTANT: Replace YOUR_PROJECT_ID with your actual Supabase project ID before running migration
 
 DO $$
 DECLARE
     base_url text;
 BEGIN
-    -- Get the project URL (this will need to be set to the actual Supabase project URL)
-    -- For now, we'll use a placeholder that maintainers need to update
+    -- Replace YOUR_PROJECT_ID with actual project ID (found in Supabase Dashboard > Settings > General)
     base_url := 'https://YOUR_PROJECT_ID.supabase.co';
     
     -- Schedule university events scraper (daily at 1:30 PM)
@@ -27,12 +26,10 @@ BEGIN
                current_setting('app.settings.service_role_key', true))
     );
     
-    RAISE NOTICE 'Added cron jobs for university and misc website scrapers';
-    RAISE NOTICE 'IMPORTANT: Update base_url in this migration to your actual Supabase project URL';
+    RAISE NOTICE 'Successfully added cron jobs for university and misc website scrapers';
     
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE NOTICE 'Note: Cron jobs will need to be set up manually with correct project URL';
-        RAISE NOTICE 'University scraper: 30 13 * * * (1:30 PM daily)';
-        RAISE NOTICE 'Misc websites scraper: 45 13 * * * (1:45 PM daily)';
+        RAISE NOTICE 'ERROR: Make sure to replace YOUR_PROJECT_ID with actual Supabase project ID in this migration';
+        RAISE EXCEPTION 'Cron job setup failed - check project ID';
 END $$;
