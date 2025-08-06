@@ -62,11 +62,11 @@ serve(async (req) => {
 
     console.log('Starting event scraping process...')
 
-    // Fetch all groups with meetup_link from database
+    // Fetch all groups with event platform links from database
     const { data: groups, error: groupsError } = await supabase
       .from('groups')
-      .select('id, name, meetup_link')
-      .not('meetup_link', 'is', null)
+      .select('id, name, meetup_link, luma_link, eventbrite_link')
+      .or('meetup_link.not.is.null,luma_link.not.is.null,eventbrite_link.not.is.null')
       .eq('status', 'approved') // Only scrape approved groups
 
     if (groupsError) {
@@ -74,7 +74,7 @@ serve(async (req) => {
       throw groupsError
     }
 
-    console.log(`Found ${groups?.length || 0} groups with meetup links`)
+    console.log(`Found ${groups?.length || 0} groups with event links`)
 
     let totalEventsProcessed = 0
     let totalEventsCreated = 0
@@ -82,94 +82,108 @@ serve(async (req) => {
 
     // Process each group
     for (const group of groups || []) {
-      if (!group.meetup_link) continue
+      // Process Meetup, Luma, and Eventbrite links for each group
+      const eventSources = []
+      if (group.meetup_link) {
+        eventSources.push({ type: 'Meetup', url: group.meetup_link })
+      }
+      if (group.luma_link) {
+        eventSources.push({ type: 'Luma', url: group.luma_link })
+      }
+      if (group.eventbrite_link) {
+        eventSources.push({ type: 'Eventbrite', url: group.eventbrite_link })
+      }
 
-      console.log(`Processing group: ${group.name} (${group.meetup_link})`)
+      if (eventSources.length === 0) continue
 
-      try {
-        // Call the scraping service (no auth needed now)
-        const scrapeResponse = await fetch('https://utah-dev-events-839851813394.us-west3.run.app/scrape-events', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            url: group.meetup_link,
-            max_events: 3
+      for (const source of eventSources) {
+        console.log(`Processing group: ${group.name} (${source.type}: ${source.url})`)
+
+        try {
+          // Call the scraping service (no auth needed now)
+          const scrapeResponse = await fetch('https://utah-dev-events-839851813394.us-west3.run.app/scrape-events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              url: source.url,
+              max_events: 3
+            })
           })
-        })
 
-        if (!scrapeResponse.ok) {
-          console.error(`Failed to scrape events for group ${group.name}: ${scrapeResponse.status}`)
-          continue
-        }
-
-        const scrapeData: ScrapeResponse = await scrapeResponse.json()
-        console.log(`Scraped ${scrapeData.events?.length || 0} events for group ${group.name}`)
-
-        // Process each scraped event
-        for (const scrapedEvent of scrapeData.events || []) {
-          totalEventsProcessed++
-
-          // Convert UTC datetime to Mountain Time
-          const { eventDate, startTime } = convertUtcToMountainTime(scrapedEvent.time)
-          console.log(`Converted UTC time ${scrapedEvent.time} to Mountain Time: ${eventDate} ${startTime}`)
-
-          // Check if event already exists (by URL)
-          const { data: existingEvents, error: checkError } = await supabase
-            .from('events')
-            .select('id')
-            .eq('link', scrapedEvent.url)
-            .limit(1)
-
-          if (checkError) {
-            console.error('Error checking existing event:', checkError)
+          if (!scrapeResponse.ok) {
+            console.error(`Failed to scrape events for group ${group.name} from ${source.type}: ${scrapeResponse.status}`)
             continue
           }
 
-          const eventData = {
-            group_id: group.id,
-            title: scrapedEvent.title,
-            description: scrapedEvent.description,
-            event_date: eventDate,
-            start_time: startTime,
-            location: scrapedEvent.venue_address,
-            venue_name: scrapedEvent.venue_name,
-            link: scrapedEvent.url,
-            image: scrapedEvent.image_url,
-            status: 'approved' // Auto-approve scraped events
-          }
+          const scrapeData: ScrapeResponse = await scrapeResponse.json()
+          console.log(`Scraped ${scrapeData.events?.length || 0} events for group ${group.name} from ${source.type}`)
 
-          if (existingEvents && existingEvents.length > 0) {
-            // Update existing event
-            const { error: updateError } = await supabase
-              .from('events')
-              .update(eventData)
-              .eq('id', existingEvents[0].id)
+            // Process each scraped event
+            for (const scrapedEvent of scrapeData.events || []) {
+              totalEventsProcessed++
 
-            if (updateError) {
-              console.error('Error updating event:', updateError)
-            } else {
-              totalEventsUpdated++
-              console.log(`Updated event: ${scrapedEvent.title}`)
+              // Convert UTC datetime to Mountain Time
+              const { eventDate, startTime } = convertUtcToMountainTime(scrapedEvent.time)
+              console.log(`Converted UTC time ${scrapedEvent.time} to Mountain Time: ${eventDate} ${startTime}`)
+
+              // Check if event already exists (by URL)
+              const { data: existingEvents, error: checkError } = await supabase
+                .from('events')
+                .select('id')
+                .eq('link', scrapedEvent.url)
+                .limit(1)
+
+              if (checkError) {
+                console.error('Error checking existing event:', checkError)
+                continue
+              }
+
+              const eventData = {
+                group_id: group.id,
+                title: scrapedEvent.title,
+                description: scrapedEvent.description,
+                event_date: eventDate,
+                start_time: startTime,
+                location: scrapedEvent.venue_address,
+                venue_name: scrapedEvent.venue_name,
+                link: scrapedEvent.url,
+                image: scrapedEvent.image_url,
+                status: 'approved' // Auto-approve scraped events
+              }
+
+              if (existingEvents && existingEvents.length > 0) {
+                // Update existing event
+                const { error: updateError } = await supabase
+                  .from('events')
+                  .update(eventData)
+                  .eq('id', existingEvents[0].id)
+
+                if (updateError) {
+                  console.error('Error updating event:', updateError)
+                } else {
+                  totalEventsUpdated++
+                  console.log(`Updated event: ${scrapedEvent.title}`)
+                }
+              } else {
+                // Create new event
+                const { error: insertError } = await supabase
+                  .from('events')
+                  .insert([eventData])
+
+                if (insertError) {
+                  console.error('Error creating event:', insertError)
+                } else {
+                  totalEventsCreated++
+                  console.log(`Created event: ${scrapedEvent.title}`)
+                }
+              }
             }
-          } else {
-            // Create new event
-            const { error: insertError } = await supabase
-              .from('events')
-              .insert([eventData])
-
-            if (insertError) {
-              console.error('Error creating event:', insertError)
-            } else {
-              totalEventsCreated++
-              console.log(`Created event: ${scrapedEvent.title}`)
-            }
-          }
+        } catch (error) {
+          console.error(`Error processing group ${group.name} from ${source.type}:`, error)
+          continue
         }
-      } catch (error) {
-        console.error(`Error processing group ${group.name}:`, error)
-        continue
       }
     }
 

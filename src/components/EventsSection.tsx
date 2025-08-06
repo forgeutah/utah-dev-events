@@ -3,6 +3,7 @@ import { useState } from "react";
 import { EventsTimeline } from "@/components/EventsTimeline";
 import { CalendarView } from "@/components/CalendarView";
 import { EventsFilterControls } from "@/components/EventsFilterControls";
+import { EventStats } from "@/components/EventStats";
 import CalendarLinkModal from "@/components/CalendarLinkModal";
 import RssLinkModal from "@/components/RssLinkModal";
 import AddEventModal from "@/components/AddEventModal";
@@ -84,6 +85,13 @@ export default function EventsSection({ events, groups, isLoading, error, allTag
                 events={filteredEvents}
                 selectedDate={selectedDate}
                 onDateSelect={setSelectedDate}
+              />
+
+              {/* Event Stats */}
+              <EventStats
+                events={events || []}
+                groups={groups || []}
+                filteredCount={filteredEvents.length}
               />
             </div>
           </div>
