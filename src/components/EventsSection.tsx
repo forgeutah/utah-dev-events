@@ -95,8 +95,10 @@ export default function EventsSection({ events, groups, isLoading, error, allTag
         onOpenChange={setShowCalendarModal}
         selectedGroups={selectedGroups}
         selectedTags={selectedTags}
+        selectedRegions={selectedRegions}
+        excludeOnline={excludeOnline}
         groups={groups || []}
-        generateICalUrl={() => generateICalUrl(selectedGroups, selectedTags)}
+        generateICalUrl={() => generateICalUrl(selectedGroups, selectedTags, selectedRegions, excludeOnline)}
       />
 
       <RssLinkModal
@@ -104,8 +106,10 @@ export default function EventsSection({ events, groups, isLoading, error, allTag
         onOpenChange={setShowRssModal}
         selectedGroups={selectedGroups}
         selectedTags={selectedTags}
+        selectedRegions={selectedRegions}
+        excludeOnline={excludeOnline}
         groups={groups || []}
-        generateRssUrl={() => generateRssUrl(selectedGroups, selectedTags)}
+        generateRssUrl={() => generateRssUrl(selectedGroups, selectedTags, selectedRegions, excludeOnline)}
       />
 
       <AddEventModal 

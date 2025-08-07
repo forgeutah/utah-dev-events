@@ -5,11 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Copy, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+import { UtahRegion } from "@/types/events";
+import { getRegionDisplayName } from "@/utils/locationUtils";
+
 interface CalendarLinkModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedGroups: string[];
   selectedTags: string[];
+  selectedRegions: UtahRegion[];
+  excludeOnline: boolean;
   groups: Array<{ id: string; name: string }>;
   generateICalUrl: () => string;
 }
@@ -19,6 +24,8 @@ export default function CalendarLinkModal({
   onOpenChange,
   selectedGroups,
   selectedTags,
+  selectedRegions,
+  excludeOnline,
   groups,
   generateICalUrl,
 }: CalendarLinkModalProps) {
@@ -62,6 +69,12 @@ export default function CalendarLinkModal({
     return selectedTags.join(", ");
   };
 
+  const getSelectedRegionsText = () => {
+    return selectedRegions.length > 0 
+      ? selectedRegions.map(getRegionDisplayName).join(', ')
+      : 'All regions';
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -78,6 +91,12 @@ export default function CalendarLinkModal({
               </div>
               <div>
                 <span className="font-medium">Tags:</span> {getSelectedTagsText()}
+              </div>
+              <div>
+                <span className="font-medium">Regions:</span> {getSelectedRegionsText()}
+              </div>
+              <div>
+                <span className="font-medium">Online Events:</span> {excludeOnline ? 'Excluded' : 'Included'}
               </div>
             </div>
           </div>
