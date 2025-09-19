@@ -201,8 +201,8 @@ serve(async (req) => {
 
       return `BEGIN:VEVENT
 UID:${event.id}@utahdevevents.com
-DTSTART;TZID=America/Denver:${startDate}
-DTEND;TZID=America/Denver:${endDate}
+DTSTART;TZID=us-mountain:${startDate}
+DTEND;TZID=us-mountain:${endDate}
 SUMMARY:${prefixedTitle}
 DESCRIPTION:${description}\\n\\nGroup: ${groupName}${event.tags ? `\\n\\nTags: ${event.tags.join(', ')}` : ''}
 LOCATION:${location}
@@ -218,9 +218,9 @@ CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:Utah Dev Events
 X-WR-CALDESC:Utah Developer Community Events
-X-WR-TIMEZONE:America/Denver
+X-WR-TIMEZONE:us-mountain
 BEGIN:VTIMEZONE
-TZID:America/Denver
+TZID:us-mountain
 BEGIN:DAYLIGHT
 TZOFFSETFROM:-0700
 TZOFFSETTO:-0600
