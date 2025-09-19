@@ -92,6 +92,13 @@ export default function EventsSection({ events, groups, isLoading, error, allTag
                 events={events || []}
                 groups={groups || []}
                 filteredCount={filteredEvents.length}
+                hasActiveFilters={
+                  selectedGroups.length > 0 || 
+                  selectedTags.length > 0 || 
+                  selectedDate !== null || 
+                  selectedRegions.length > 0 || 
+                  excludeOnline
+                }
               />
             </div>
           </div>

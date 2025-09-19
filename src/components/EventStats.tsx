@@ -9,9 +9,10 @@ interface EventStatsProps {
   events: Event[];
   groups: Group[];
   filteredCount: number;
+  hasActiveFilters?: boolean;
 }
 
-export const EventStats = ({ events, groups, filteredCount }: EventStatsProps) => {
+export const EventStats = ({ events, groups, filteredCount, hasActiveFilters = false }: EventStatsProps) => {
   // Calculate stats
   const totalEvents = events.length;
   const totalGroups = groups.length;
@@ -133,7 +134,7 @@ export const EventStats = ({ events, groups, filteredCount }: EventStatsProps) =
           </div>
         </div>
 
-        {filteredCount < totalEvents && (
+        {hasActiveFilters && filteredCount < totalEvents && (
           <div className="text-xs text-muted-foreground pt-2 border-t border-border">
             {totalEvents - filteredCount} events hidden by filters
           </div>
