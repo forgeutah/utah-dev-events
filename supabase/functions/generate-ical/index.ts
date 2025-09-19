@@ -7,20 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper function to format date for iCal - converts Mountain Time to UTC
+// Helper function to format date for iCal with Mountain Time
 function formatICalDate(date: string, time?: string): string {
-  // Create date in Mountain Time
-  const dateObj = new Date(date + 'T00:00:00');
-  if (time) {
-    const [hours, minutes] = time.split(':');
-    dateObj.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-  }
-  
-  // Convert from Mountain Time to UTC
-  // Mountain Time is UTC-7 (MDT) or UTC-8 (MST)
-  // We'll assume MDT (UTC-7) for most of the year
-  const utcDate = new Date(dateObj.getTime() + (7 * 60 * 60 * 1000));
-  return utcDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const dateStr = time ? `${date}T${time.padStart(5, '0')}:00` : `${date}T00:00:00`;
+  return dateStr.replace(/[-:]/g, '');
 }
 
 // Helper function to escape iCal text
@@ -211,8 +201,8 @@ serve(async (req) => {
 
       return `BEGIN:VEVENT
 UID:${event.id}@utahdevevents.com
-DTSTART:${startDate}
-DTEND:${endDate}
+DTSTART;TZID=America/Denver:${startDate}
+DTEND;TZID=America/Denver:${endDate}
 SUMMARY:${prefixedTitle}
 DESCRIPTION:${description}\\n\\nGroup: ${groupName}${event.tags ? `\\n\\nTags: ${event.tags.join(', ')}` : ''}
 LOCATION:${location}
@@ -229,6 +219,23 @@ METHOD:PUBLISH
 X-WR-CALNAME:Utah Dev Events
 X-WR-CALDESC:Utah Developer Community Events
 X-WR-TIMEZONE:America/Denver
+BEGIN:VTIMEZONE
+TZID:America/Denver
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0700
+TZOFFSETTO:-0600
+TZNAME:MDT
+DTSTART:20070311T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0600
+TZOFFSETTO:-0700
+TZNAME:MST
+DTSTART:20071104T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
 ${icalEvents}
 END:VCALENDAR`;
 
