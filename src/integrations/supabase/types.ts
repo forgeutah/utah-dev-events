@@ -147,6 +147,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      find_duplicate_groups: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          duplicate_count: number
+          duplicate_type: string
+          group_ids: string[]
+          group_names: string[]
+          link_value: string
+        }[]
+      }
       list_group_cron_jobs: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -154,6 +164,17 @@ export type Database = {
           command: string
           job_name: string
           schedule: string
+        }[]
+      }
+      remove_duplicate_groups: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          duplicate_link: string
+          kept_group_id: string
+          kept_group_name: string
+          link_type: string
+          removed_group_id: string
+          removed_group_name: string
         }[]
       }
       scrape_all_meetup_groups: {
