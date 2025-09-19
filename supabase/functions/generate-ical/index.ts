@@ -7,14 +7,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper function to format date for iCal
+// Helper function to format date for iCal - converts Mountain Time to UTC
 function formatICalDate(date: string, time?: string): string {
-  const dateObj = new Date(date);
+  // Create date in Mountain Time
+  const dateObj = new Date(date + 'T00:00:00');
   if (time) {
     const [hours, minutes] = time.split(':');
-    dateObj.setHours(parseInt(hours), parseInt(minutes));
+    dateObj.setHours(parseInt(hours), parseInt(minutes), 0, 0);
   }
-  return dateObj.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  
+  // Convert from Mountain Time to UTC
+  // Mountain Time is UTC-7 (MDT) or UTC-8 (MST)
+  // We'll assume MDT (UTC-7) for most of the year
+  const utcDate = new Date(dateObj.getTime() + (7 * 60 * 60 * 1000));
+  return utcDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 }
 
 // Helper function to escape iCal text

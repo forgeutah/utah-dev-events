@@ -17,14 +17,20 @@ function escapeXml(text: string): string {
     .replace(/'/g, '&#39;');
 }
 
-// Helper function to format date for RSS
+// Helper function to format date for RSS - converts Mountain Time to UTC
 function formatRssDate(date: string, time?: string): string {
-  const dateObj = new Date(date);
+  // Create date in Mountain Time
+  const dateObj = new Date(date + 'T00:00:00');
   if (time) {
     const [hours, minutes] = time.split(':');
-    dateObj.setHours(parseInt(hours), parseInt(minutes));
+    dateObj.setHours(parseInt(hours), parseInt(minutes), 0, 0);
   }
-  return dateObj.toUTCString();
+  
+  // Convert from Mountain Time to UTC
+  // Mountain Time is UTC-7 (MDT) or UTC-8 (MST)
+  // We'll assume MDT (UTC-7) for most of the year
+  const utcDate = new Date(dateObj.getTime() + (7 * 60 * 60 * 1000));
+  return utcDate.toUTCString();
 }
 
 serve(async (req) => {
