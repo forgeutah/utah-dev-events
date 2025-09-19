@@ -19,29 +19,16 @@ function escapeXml(text: string): string {
 
 // Helper function to format date for RSS with proper Mountain Time handling
 function formatRssDate(date: string, time?: string): string {
-  // Parse the date and time in Mountain Time context
+  // Parse the date and time, treating as Mountain Time
   const timeStr = time || '00:00';
   const dateTimeStr = `${date}T${timeStr}:00`;
   
-  // Create a date object and format it for Mountain Time
+  // Create a date object
   const dateObj = new Date(dateTimeStr);
   
-  // Use toLocaleString to get the date in Mountain Time, then convert to RFC 2822 format
-  const options: Intl.DateTimeFormatOptions = {
-    timeZone: 'America/Denver',
-    weekday: 'short',
-    day: '2-digit',
-    month: 'short', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    timeZoneName: 'short'
-  };
-  
-  const formatted = dateObj.toLocaleString('en-US', options);
-  // Convert to RFC 2822 format: "Wed, 02 Oct 2002 13:00:00 GMT"
-  return formatted.replace(/,/g, '').replace(/(\w{3}) (\d{2}) (\w{3}) (\d{4}) (\d{2}):(\d{2}):(\d{2}) (.+)/, '$1, $2 $3 $4 $5:$6:$7 $8');
+  // Convert to RFC 2822 format for RSS feeds
+  // This will output in the format: "Wed, 02 Oct 2002 13:00:00 GMT"
+  return dateObj.toUTCString();
 }
 
 serve(async (req) => {
