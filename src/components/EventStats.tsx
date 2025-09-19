@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Event, Group } from "@/types/events";
 import { isOnlineEvent } from "@/utils/locationUtils";
-import { getDuplicateCount } from "@/utils/eventDeduplication";
+
 
 interface EventStatsProps {
   events: Event[];
@@ -52,8 +52,6 @@ export const EventStats = ({ events, groups, filteredCount }: EventStatsProps) =
   const onlineEvents = events.filter(event => isOnlineEvent(event)).length;
   const inPersonEvents = totalEvents - onlineEvents;
 
-  // Calculate potential duplicates using proper deduplication logic
-  const potentialDuplicates = getDuplicateCount(events);
 
   const sources = [
     { name: 'Meetup.com', count: sourceStats.meetup, color: 'bg-red-500' },
@@ -118,15 +116,6 @@ export const EventStats = ({ events, groups, filteredCount }: EventStatsProps) =
           </div>
         </div>
 
-        {/* Potential Duplicates */}
-        {potentialDuplicates > 0 && (
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Potential Duplicates</span>
-            <Badge variant="destructive" className="text-xs">
-              {potentialDuplicates}
-            </Badge>
-          </div>
-        )}
 
         {/* Event Sources */}
         <div className="space-y-2">
