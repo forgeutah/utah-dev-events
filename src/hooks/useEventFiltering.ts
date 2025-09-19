@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { parseISO, isSameDay, startOfToday } from "date-fns";
 import { Event, Group, UtahRegion } from "@/types/events";
 import { categorizeEventByRegion, isOnlineEvent } from "@/utils/locationUtils";
+import { getDeduplicatedEvents } from "@/utils/eventDeduplication";
 
 export const useEventFiltering = (
   events: Event[],
@@ -35,7 +36,10 @@ export const useEventFiltering = (
 
   // Filter events based on selected groups, tags, date, regions, and online status
   const filteredEvents = useMemo(() => {
-    return upcomingEvents.filter((event: Event) => {
+    // First deduplicate events to remove duplicates
+    const deduplicatedEvents = getDeduplicatedEvents(upcomingEvents);
+    
+    return deduplicatedEvents.filter((event: Event) => {
       console.log('Filtering event:', event.title, {
         eventGroupId: event.group_id,
         eventTags: event.tags,
