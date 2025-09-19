@@ -17,20 +17,31 @@ function escapeXml(text: string): string {
     .replace(/'/g, '&#39;');
 }
 
-// Helper function to format date for RSS - converts Mountain Time to UTC
+// Helper function to format date for RSS with proper Mountain Time handling
 function formatRssDate(date: string, time?: string): string {
-  // Create date in Mountain Time
-  const dateObj = new Date(date + 'T00:00:00');
-  if (time) {
-    const [hours, minutes] = time.split(':');
-    dateObj.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-  }
+  // Parse the date and time in Mountain Time context
+  const timeStr = time || '00:00';
+  const dateTimeStr = `${date}T${timeStr}:00`;
   
-  // Convert from Mountain Time to UTC
-  // Mountain Time is UTC-7 (MDT) or UTC-8 (MST)
-  // We'll assume MDT (UTC-7) for most of the year
-  const utcDate = new Date(dateObj.getTime() + (7 * 60 * 60 * 1000));
-  return utcDate.toUTCString();
+  // Create a date object and format it for Mountain Time
+  const dateObj = new Date(dateTimeStr);
+  
+  // Use toLocaleString to get the date in Mountain Time, then convert to RFC 2822 format
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: 'America/Denver',
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short', 
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short'
+  };
+  
+  const formatted = dateObj.toLocaleString('en-US', options);
+  // Convert to RFC 2822 format: "Wed, 02 Oct 2002 13:00:00 GMT"
+  return formatted.replace(/,/g, '').replace(/(\w{3}) (\d{2}) (\w{3}) (\d{4}) (\d{2}):(\d{2}):(\d{2}) (.+)/, '$1, $2 $3 $4 $5:$6:$7 $8');
 }
 
 serve(async (req) => {
