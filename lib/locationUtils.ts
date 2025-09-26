@@ -90,15 +90,44 @@ export function categorizeEventByRegion(event: Record<string, any>): UtahRegion 
 }
 
 export function isOnlineEvent(event: Record<string, any>): boolean {
-  // Combine all relevant fields for analysis
-  const textToCheck = [
-    event.location,
-    event.venue_name,
-    event.description,
-    event.title
-  ].filter(Boolean).join(' ').toLowerCase();
+  // Prefer venue/location fields as stronger signals for in-person vs online
+  const venueText = [event.location, event.venue_name].filter(Boolean).join(' ').toLowerCase();
+  const contentText = [event.description, event.title].filter(Boolean).join(' ').toLowerCase();
 
-  return ONLINE_INDICATORS.some(indicator => textToCheck.includes(indicator));
+  // If venue or location explicitly indicate online/platform, classify as online
+  if (venueText) {
+    // If venue contains a platform word (e.g., 'Zoom') or a URL, it's online
+    if (PLATFORM_WORDS.some(p => new RegExp(`\\b${escapeRegex(p)}\\b`, 'i').test(venueText))) {
+      return true;
+    }
+
+    if (URL_REGEX.test(venueText)) return true;
+
+    // If venue contains words like 'online' or 'virtual', it's online
+    if (ONLINE_INDICATORS.some(ind => new RegExp(`\\b${escapeRegex(ind)}\\b`, 'i').test(venueText))) {
+      return true;
+    }
+
+    // Presence of a physical address or city name in venueText should strongly indicate in-person
+    const hasPhysical = /\d{1,5}\s+\w+/.test(venueText) || /\b(street|st\.|avenue|ave\.|road|rd\.|lane|ln\.|drive|dr\.)\b/i.test(venueText);
+    if (hasPhysical) return false;
+  }
+
+  // If no venue/location signals, consider title/description but use stricter matching
+  if (contentText) {
+    // If there's a meeting URL in content, it's online
+    if (URL_REGEX.test(contentText)) return true;
+
+    // If platform words appear in content (with word boundaries) consider online
+    if (PLATFORM_WORDS.some(p => new RegExp(`\\b${escapeRegex(p)}\\b`, 'i').test(contentText))) return true;
+
+    // Finally check other online indicators but with word boundaries to avoid partial matches
+    if (ONLINE_INDICATORS.some(ind => new RegExp(`\\b${escapeRegex(ind)}\\b`, 'i').test(contentText))) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function escapeRegex(s: string) {
