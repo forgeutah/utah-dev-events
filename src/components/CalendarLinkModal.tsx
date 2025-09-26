@@ -6,7 +6,7 @@ import { Copy, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 import { UtahRegion } from "@/types/events";
-import { getRegionDisplayName } from "@/utils/locationUtils";
+import { getRegionDisplayName } from "../../lib/locationUtils";
 
 interface CalendarLinkModalProps {
   open: boolean;

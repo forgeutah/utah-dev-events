@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { parseISO, isSameDay, startOfToday } from "date-fns";
 import { Event, Group, UtahRegion } from "@/types/events";
-import { categorizeEventByRegion, isOnlineEvent } from "@/utils/locationUtils";
+import { categorizeEventByRegion, isOnlineEvent } from "../../lib/locationUtils";
 import { getDeduplicatedEvents } from "@/utils/eventDeduplication";
 
 export const useEventFiltering = (

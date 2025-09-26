@@ -1,0 +1,142 @@
+[
+  {
+    "id": "216a13d3-99dd-4266-9ec6-ccdc119423c9",
+    "title": "UtahJS SLC Meetup - Intro to WASM",
+    "event_date": "2025-06-17",
+    "start_time": "19:00:00",
+    "location": "555 S 300 E, Salt Lake City, UT",
+    "venue_name": "Software Technology Group",
+    "address_line_1": null,
+    "address_line_2": null,
+    "city": null,
+    "state_province": null,
+    "postal_code": null,
+    "country": null,
+    "link": "https://www.meetup.com/utahjs/events/307276974/?eventOrigin=group_events_list",
+    "status": "approved",
+    "group_id": "f1f11c49-1488-44a0-a176-08e66dbf4ec5",
+    "description": "Join us in person or on Zoom!\n\n7:00pm - Dinner and Welcome\n\n7:10pm - Beginners: TBD\n\n7:50pm - Classic Presentation: \"Using WebAssembly from JavaScript\" by Matthew Tolman.\n\nParking is available behind the building.\n\nYou can submit a proposal to speak at http://bit.ly/utahjs-talk.",
+    "tags": [],
+    "groups": {
+      "name": "UtahJS",
+      "tags": [
+        "JavaScript",
+        "Programming",
+        "Frontend"
+      ],
+      "status": "approved"
+    }
+  },
+  {
+    "id": "7478d541-8fc3-4cad-b3e4-f3be0223fd57",
+    "title": "Second Monthly Hack Night",
+    "event_date": "2025-06-26",
+    "start_time": "18:00:00",
+    "location": "276 E 12200 S, Draper, UT",
+    "venue_name": "Forge Utah",
+    "address_line_1": null,
+    "address_line_2": null,
+    "city": null,
+    "state_province": null,
+    "postal_code": null,
+    "country": null,
+    "link": "https://www.meetup.com/the-foundry-by-forge-utah/events/307418830/?eventOrigin=group_events_list",
+    "status": "approved",
+    "group_id": "5f043177-17c2-4dba-8e79-eeddb5f9510f",
+    "description": "Hang out, talk shop, get help on your projects. We're focused on open source stuff, but that's not a rule, just a priority. Come work in the Forge space.\n\nNo speaker, no sponsor except Forge, and no food provided. Bring food or drink if you want, bring a laptop if you need it to work, and come hang out and hack!\n\nThis is the second hack night of the monthly two.",
+    "tags": [],
+    "groups": {
+      "name": "The Foundry",
+      "tags": [
+        "Networking",
+        "Hacking",
+        "Community"
+      ],
+      "status": "approved"
+    }
+  },
+  {
+    "id": "c4c25c08-03f0-4070-9fa9-2de3983fdbe8",
+    "title": "TBD",
+    "event_date": "2025-07-01",
+    "start_time": "18:15:00",
+    "location": "1331 W Powell Way, Lehi, ut",
+    "venue_name": "Weave",
+    "address_line_1": null,
+    "address_line_2": null,
+    "city": null,
+    "state_province": null,
+    "postal_code": null,
+    "country": null,
+    "link": "https://www.meetup.com/women-who-go-utah/events/308447657/?eventOrigin=group_events_list",
+    "status": "approved",
+    "group_id": "06f785af-bfca-403f-b181-21f8da46c11d",
+    "description": "NOTE: this event is hybrid. To attend in person our host requires all not vaccinated persons to wear masks and practice social distancing.\nWe meet joint with the Utah Go User Group\n\nOnline link: https://meet.google.com/dkn-ekxb-qrj\n\nSchedule:\n6:15pm-6:30pm food and mingle\n6:30pm - 7:15pm talk\n7:15pm - on hang out and chat!",
+    "tags": [],
+    "groups": {
+      "name": "Women Who Go Utah",
+      "tags": [
+        "Go",
+        "Programming",
+        "Women in Tech"
+      ],
+      "status": "pending"
+    }
+  },
+  {
+    "id": "6672ea5e-f061-47ba-a8c9-9538482aa9fd",
+    "title": "React Utah Meetup",
+    "event_date": "2025-07-08",
+    "start_time": "19:00:00",
+    "location": "2353 Triumph Blvd, Lehi, UT",
+    "venue_name": "2353 Triumph Blvd",
+    "address_line_1": null,
+    "address_line_2": null,
+    "city": null,
+    "state_province": null,
+    "postal_code": null,
+    "country": null,
+    "link": "https://www.meetup.com/reactjs-utah/events/304921392/?eventOrigin=group_events_list",
+    "status": "approved",
+    "group_id": "0d74111c-1b72-498e-b0b4-fcadf73a62f8",
+    "description": "Welcome\nCome join us for some networking, food, and presentations!\nMeetups are a great way to connect with the community and learn from each other.\n\nSpeaker: Informal hack night\nWe will just get together and have some good conversations and networking, if you have something you want to share the podium will be open for more lightning style presentations if anyone is inclined, otherwise come work on a side project, ask for advice, input, etc...\n\nRemote Link: https://meet.google.com/uvo-zsre-min\n\nDinner: No dinner will be provided this month\n\nWant to Present? You do not have to be an expert! Speaker Sign Up Form\n\nSponsors\nSponsors make this whole thing possible, free, and fun! We would love your help! If your company would like to help sponsor the meetup enabling us to continue delivering a great community event reach out to Mike North on Meetup or on Slack.\n\nMTECH",
+    "tags": [],
+    "groups": {
+      "name": "ReactJS Utah",
+      "tags": [
+        "React",
+        "JavaScript",
+        "Frontend"
+      ],
+      "status": "approved"
+    }
+  },
+  {
+    "id": "61b97435-c7ac-4eb6-ad6d-80715ddb8372",
+    "title": "FreeCodeCamp - Study Group",
+    "event_date": "2025-06-24",
+    "start_time": "18:00:00",
+    "location": null,
+    "venue_name": "Online event",
+    "address_line_1": null,
+    "address_line_2": null,
+    "city": null,
+    "state_province": null,
+    "postal_code": null,
+    "country": null,
+    "link": "https://www.meetup.com/utahjs/events/305911711/?eventOrigin=group_events_list",
+    "status": "approved",
+    "group_id": "f1f11c49-1488-44a0-a176-08e66dbf4ec5",
+    "description": "🚀 Welcome to the FreeCodeCamp - Online Study Group! 🌐\nEmbark on your coding journey with a supportive community! Whether you're delving into HTML, CSS, or JavaScript, our virtual study group is the perfect place to connect with fellow learners, ask questions, and elevate your coding skills.\n🔍 What to Expect: Join us from the comfort of your home for an interactive online study group. Dive into discussions about HTML, CSS, and JavaScript, whether you're a beginner or seasoned coder. Need help troubleshooting an issue? Working on an exciting project? Seeking advice to kickstart your developer career? We've got you covered!",
+    "tags": [],
+    "groups": {
+      "name": "UtahJS",
+      "tags": [
+        "JavaScript",
+        "Programming",
+        "Frontend"
+      ],
+      "status": "approved"
+    }
+  }
+]

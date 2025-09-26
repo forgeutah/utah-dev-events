@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.171.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { categorizeEventByRegion, isOnlineEvent } from "../../../lib/locationUtils.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -92,71 +93,6 @@ serve(async (req) => {
     }
 
     console.log(`Fetched ${events?.length || 0} events from database`);
-
-    // Helper functions for region filtering
-    const categorizeEventByRegion = (event: any): string => {
-      const SALT_LAKE_COUNTY = [
-        'salt lake city', 'west valley city', 'west jordan', 'sandy', 'murray', 
-        'taylorsville', 'south salt lake', 'millcreek', 'draper', 'riverton',
-        'cottonwood heights', 'holladay', 'midvale', 'south jordan', 'herriman',
-        'bluffdale', 'alta', 'magna', 'kearns', 'west valley'
-      ];
-
-      const UTAH_COUNTY = [
-        'provo', 'orem', 'american fork', 'lehi', 'pleasant grove', 'springville',
-        'spanish fork', 'payson', 'lindon', 'highland', 'alpine', 'cedar hills',
-        'saratoga springs', 'eagle mountain', 'mapleton', 'vineyard', 'salem',
-        'santaquin', 'elk ridge', 'genola', 'goshen'
-      ];
-
-      const NORTHERN_UTAH = [
-        'ogden', 'layton', 'bountiful', 'roy', 'clearfield', 'kaysville', 'clinton',
-        'north salt lake', 'centerville', 'farmington', 'woods cross', 'west point',
-        'syracuse', 'logan', 'brigham city', 'tremonton', 'hyrum', 'smithfield',
-        'richmond', 'providence', 'north logan', 'river heights', 'nibley'
-      ];
-
-      const SOUTHERN_UTAH = [
-        'st george', 'saint george', 'cedar city', 'hurricane', 'washington', 'ivins',
-        'santa clara', 'leeds', 'la verkin', 'toquerville', 'enterprise', 'veyo',
-        'summit', 'dammeron valley', 'springdale', 'rockville', 'virgin', 'hildale',
-        'orderville', 'glendale', 'alton', 'duck creek village', 'brian head',
-        'parowan', 'paragonah', 'enoch', 'minersville', 'beaver', 'milford'
-      ];
-
-      const locationText = [
-        event.location,
-        event.venue_name,
-        event.city,
-        event.address_line_1,
-        event.address_line_2
-      ].filter(Boolean).join(' ').toLowerCase();
-
-      if (!locationText) return 'Unknown';
-
-      if (SALT_LAKE_COUNTY.some(city => locationText.includes(city))) return 'Salt Lake County';
-      if (UTAH_COUNTY.some(city => locationText.includes(city))) return 'Utah County';
-      if (NORTHERN_UTAH.some(city => locationText.includes(city))) return 'Northern Utah';
-      if (SOUTHERN_UTAH.some(city => locationText.includes(city))) return 'Southern Utah';
-      return 'Unknown';
-    };
-
-    const isOnlineEvent = (event: any): boolean => {
-      const ONLINE_INDICATORS = [
-        'online', 'virtual', 'remote', 'zoom', 'meet', 'teams', 'webinar',
-        'livestream', 'stream', 'digital', 'internet', 'web-based', 'video call',
-        'video conference', 'teleconference', 'hangout', 'discord'
-      ];
-      
-      const textToCheck = [
-        event.location,
-        event.venue_name,
-        event.description,
-        event.title
-      ].filter(Boolean).join(' ').toLowerCase();
-
-      return ONLINE_INDICATORS.some(indicator => textToCheck.includes(indicator));
-    };
 
     // Filter events based on the specified logic
     const filteredEvents = events?.filter((event: any) => {
