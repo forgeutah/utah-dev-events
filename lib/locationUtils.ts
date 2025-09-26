@@ -1,4 +1,5 @@
-import { Event, UtahRegion } from "@/types/events";
+// Shared location utilities usable by frontend and Deno serverless functions
+// Keep this file free of project-specific types so it can be imported by Deno
 
 // Salt Lake County cities/areas
 const SALT_LAKE_COUNTY = [
@@ -33,21 +34,35 @@ const SOUTHERN_UTAH = [
   'parowan', 'paragonah', 'enoch', 'minersville', 'beaver', 'milford'
 ];
 
-// Online event indicators
+// Online event indicators (prefer exact words / platforms)
+// Avoid overly generic words like 'meet' that cause false positives when used in titles.
 const ONLINE_INDICATORS = [
-  'online', 'virtual', 'remote', 'zoom', 'meet', 'teams', 'webinar',
-  'livestream', 'stream', 'digital', 'internet', 'web-based', 'video call',
-  'video conference', 'teleconference', 'hangout', 'discord'
+  'online', 'virtual', 'remote', 'zoom', 'teams', 'webinar',
+  'livestream', 'livestreaming', 'stream', 'digital', 'internet', 'web-based',
+  'video call', 'video conference', 'teleconference', 'hangout', 'discord'
 ];
 
-export function categorizeEventByRegion(event: Event): UtahRegion {
+// Platforms that often indicate online events (match as word boundaries)
+const PLATFORM_WORDS = ['zoom', 'google meet', 'teams', 'webex', 'gotomeeting', 'jitsi', 'discord'];
+
+// Regex to detect urls (http/https) or meeting links
+const URL_REGEX = /https?:\/\/[\w\-./?=&%#]+/i;
+
+export type UtahRegion =
+  | 'Salt Lake County'
+  | 'Utah County'
+  | 'Northern Utah'
+  | 'Southern Utah'
+  | 'Unknown';
+
+export function categorizeEventByRegion(event: Record<string, any>): UtahRegion {
   // Combine all location-related fields for analysis
   const locationText = [
     event.location,
     event.venue_name,
     event.city,
     event.address_line_1,
-    event.address_line_2
+    event.address_line_2,
   ].filter(Boolean).join(' ').toLowerCase();
 
   if (!locationText) {
@@ -74,7 +89,7 @@ export function categorizeEventByRegion(event: Event): UtahRegion {
   return 'Unknown';
 }
 
-export function isOnlineEvent(event: Event): boolean {
+export function isOnlineEvent(event: Record<string, any>): boolean {
   // Combine all relevant fields for analysis
   const textToCheck = [
     event.location,
@@ -84,6 +99,10 @@ export function isOnlineEvent(event: Event): boolean {
   ].filter(Boolean).join(' ').toLowerCase();
 
   return ONLINE_INDICATORS.some(indicator => textToCheck.includes(indicator));
+}
+
+function escapeRegex(s: string) {
+  return s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&');
 }
 
 export function getRegionDisplayName(region: UtahRegion): string {
