@@ -2,7 +2,7 @@
 import { Calendar, Rss, MapPin, Monitor } from "lucide-react";
 import { MultiSelectDropdown } from "@/components/MultiSelectDropdown";
 import { Group, UtahRegion } from "@/types/events";
-import { UTAH_REGIONS, getRegionDisplayName } from "@/utils/locationUtils";
+import { UTAH_REGIONS, getRegionDisplayName } from "../../lib/locationUtils";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 

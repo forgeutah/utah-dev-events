@@ -2,7 +2,7 @@ import { Calendar, Users, Database, TrendingUp, Globe, Building2 } from "lucide-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Event, Group } from "@/types/events";
-import { isOnlineEvent } from "@/utils/locationUtils";
+import { isOnlineEvent } from "../../lib/locationUtils";
 
 
 interface EventStatsProps {
