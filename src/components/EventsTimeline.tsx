@@ -2,7 +2,7 @@
 import React from "react";
 import { format, parseISO, isSameDay, isToday, isTomorrow, isYesterday, isPast, formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, Users, ExternalLink } from "lucide-react";
+import { MapPin, Clock, ExternalLink } from "lucide-react";
 
 interface Event {
   id: string;
@@ -222,6 +222,13 @@ export function EventsTimeline({ events, isLoading, error, visibleCount, onShowM
                     </div>
                   )}
 
+                  {/* Group name */}
+                  {event.groups?.name && (
+                    <div className="text-sm text-muted-foreground mb-1">
+                      {event.groups.name}
+                    </div>
+                  )}
+
                   {/* Event title */}
                   <h3 className="text-xl font-semibold text-white mb-2">
                     {event.link ? (
@@ -246,21 +253,10 @@ export function EventsTimeline({ events, isLoading, error, visibleCount, onShowM
                     </p>
                   )}
 
-                  {/* Event details */}
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
-                    {/* Group */}
-                    {event.groups?.name && (
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4" />
-                        <span className="font-semibold">{event.groups.name}</span>
-                      </div>
-                    )}
-
-                    {/* Location */}
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      <span>{displayLocation || "TBD"}</span>
-                    </div>
+                  {/* Location */}
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <MapPin className="w-4 h-4" />
+                    <span>{displayLocation || "TBD"}</span>
                   </div>
 
                   {/* Tags */}
