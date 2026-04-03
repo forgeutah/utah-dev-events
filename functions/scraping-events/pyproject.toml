@@ -21,7 +21,16 @@ dependencies = [
 [dependency-groups]
 dev = [
     "mypy>=1.15.0",
+    "pytest>=8",
+    "pytest-asyncio>=0.25",
     "python-dotenv>=1.1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "smoke: live-network tests that hit real external URLs (deselect with -m 'not smoke')",
 ]
 
 [tool.uv]
