@@ -1,0 +1,96 @@
+You are fixing a broken Meetup.com scraper in a Python project.
+
+## Context
+
+The scraper is at: functions/scraping-events/src/scraping_events/scrape_meetup.py
+It uses Playwright (async) to navigate Meetup group pages and extract event data.
+
+The scraper is CURRENTLY BROKEN because Meetup changed their site structure. Your job is to
+update the selectors and DOM interactions in scrape_meetup.py so the scraper works again.
+
+## Environment
+
+- Working directory: functions/scraping-events/
+- Python tooling: uv (run commands as `uv run python ...` from functions/scraping-events/)
+- Browser automation: Playwright (already installed)
+- Run the scraper CLI: `uv run python -m scraping_events.main_cli <meetup_url> --max-events 2`
+- Success: exits 0, stdout is JSON like `{"events": [...]}`
+- Failure: exits non-zero, stdout is JSON like `{"type": "error", ...}`
+
+## Target URL for testing
+
+The Meetup group URL to use for testing is provided via the SMOKE_TEST_URL environment variable.
+Read it at the start of each bash command that needs it:
+
+  MEETUP_URL="${SMOKE_TEST_URL}"
+
+Do not hardcode, log, or echo this URL in any output — treat it as a secret.
+
+## Playwright infrastructure
+
+The project has async browser utilities in:
+  functions/scraping-events/src/scraping_events/playwright_utils.py
+
+Key exports:
+- `launch_browser()` — async context manager → `Browser`
+- `PageWrapper.open(browser)` — async context manager → `PageWrapper` (has `.page` and `.navigate(url)`)
+
+IMPORTANT: Any inspection script you write must:
+1. Use `async def main()` and `asyncio.run(main())`
+2. Set `DEBUG=false` in the environment (or pass env to subprocess) — playwright_utils.py reads
+   `get_env().debug` at module import time to decide headless mode
+3. Run from `functions/scraping-events/` as the working directory
+4. Read the target URL from the SMOKE_TEST_URL environment variable, not from any hardcoded value
+
+## Your approach
+
+1. Read functions/scraping-events/src/scraping_events/scrape_meetup.py to understand the
+   current selectors and what they are trying to find.
+
+2. Write a temporary Python inspection script (e.g., /tmp/inspect_meetup.py) that:
+   - Reads the target URL from os.environ["SMOKE_TEST_URL"]
+   - Launches a browser using playwright_utils.launch_browser()
+   - Navigates to the group page and inspects the current DOM to find the correct selectors for:
+     a) The "see all upcoming events" button (currently: #see-all-upcoming-events-button)
+     b) The tab or link to filter by "Upcoming" events
+     c) Individual event cards and their href links
+   - Then navigates to one of the event detail pages and inspects:
+     a) The event title (h1)
+     b) The event description/details section (currently: .break-words)
+     c) The datetime element (currently: [data-event-label='action-bar'] [datetime])
+     d) Venue detection (currently uses data-testid: attend-irl-btn, attend-online-btn, needs-location)
+     e) Venue name, URL, address (currently uses __NEXT_DATA__ JSON via document.getElementById('__NEXT_DATA__'))
+     f) The event image (currently: __NEXT_DATA__.featuredEventPhoto.source)
+   - Print what you find so you can reason about the correct selectors
+
+3. Run the inspection script from functions/scraping-events/:
+   `DEBUG=false uv run python /tmp/inspect_meetup.py`
+
+4. Based on what you observe, update scrape_meetup.py with corrected selectors and interaction
+   patterns. Make minimal changes — only fix what is broken.
+
+5. Verify the fix by running the CLI from functions/scraping-events/:
+   `DEBUG=false uv run python -m scraping_events.main_cli "${SMOKE_TEST_URL}" --max-events 2`
+
+   Success criteria: exit code 0 and the JSON output contains at least one event with a non-empty
+   title and a non-null time field.
+
+6. If the fix works, clean up any temporary files you created (e.g., /tmp/inspect_meetup.py).
+   Do NOT modify any files other than scrape_meetup.py (plus cleanup of temp files).
+
+7. If the first approach doesn't work, iterate. You have up to 20 turns. Common issues:
+   - Selectors may have changed from IDs to data-testid attributes or vice versa
+   - Buttons may now be rendered differently or require different interaction
+   - The page structure for listing events vs event detail may have changed independently
+   - Meetup may now require different navigation steps to reach the upcoming events list
+
+## What NOT to do
+
+- Do not modify playwright_utils.py, schemas.py, main_cli.py, or any other file besides scrape_meetup.py
+- Do not add new dependencies
+- Do not change the function signatures of scrape_meetup(), _get_upcoming_event_urls(), or _get_event_details()
+- Do not commit any changes — just fix the file
+- Do not hardcode, log, print, or include the SMOKE_TEST_URL value in any output or file
+
+When done, report: "Fix complete. The scraper returned N events."
+If you cannot fix it, report: "Fix failed. Last error: <error message>"
