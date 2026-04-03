@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running unit tests..."
+npx vitest run --reporter=dot 2>&1
