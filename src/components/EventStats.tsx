@@ -31,7 +31,7 @@ export const EventStats = ({ events, groups, filteredCount, hasActiveFilters = f
     const url = event.link?.toLowerCase() || '';
     if (url.includes('meetup.com')) {
       sourceStats.meetup++;
-    } else if (url.includes('lu.ma')) {
+    } else if (url.includes('lu.ma') || url.includes('luma.com')) {
       sourceStats.luma++;
     } else if (url.includes('eventbrite.com')) {
       sourceStats.eventbrite++;

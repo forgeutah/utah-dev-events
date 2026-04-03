@@ -68,8 +68,8 @@ export default function AddEventModal({ open, onOpenChange }: { open: boolean, o
       const match = link.match(/meetup\.com\/([^\/]+)/);
       return match ? `meetup-${match[1]}` : null;
     }
-    if (link.includes("luma.com")) {
-      const match = link.match(/luma\.com\/([^\/]+)/);
+    if (link.includes("luma.com") || link.includes("lu.ma")) {
+      const match = link.match(/(?:luma\.com|lu\.ma)\/([^\/]+)/);
       return match ? `luma-${match[1]}` : null;
     }
     return null;

@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run unit tests
+        run: npx vitest run
+
+      - name: Build
+        run: npm run build
+
+  smoke-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: functions/scraping-events
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "functions/scraping-events/uv.lock"
+
+      - name: Install Python 3.13
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Install Playwright browsers
+        run: uv run playwright install chromium --with-deps
+
+      - name: Run smoke tests
+        env:
+          DEBUG: "false"
+          GROUP_URL: ${{ secrets.SMOKE_TEST_GROUP_URL }}
+          EVENT_URL: ${{ secrets.SMOKE_TEST_EVENT_URL }}
+          ONLINE_ONLY_EVENT_URL: ${{ secrets.SMOKE_TEST_ONLINE_ONLY_EVENT_URL }}
+          HYBRID_EVENT_URL: ${{ secrets.SMOKE_TEST_HYBRID_EVENT_URL }}
+          IN_PERSON_EVENT_URL: ${{ secrets.SMOKE_TEST_IN_PERSON_EVENT_URL }}
+          GROUP_EVENTS_PAGE_URL: ${{ secrets.SMOKE_TEST_GROUP_EVENTS_PAGE_URL }}
+          LUMA_EVENT_URL: ${{ secrets.SMOKE_TEST_LUMA_EVENT_URL }}
+        run: uv run pytest tests/smoke/ -v --tb=short

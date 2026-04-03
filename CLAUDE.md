@@ -88,7 +88,16 @@ SMOKE_TEST_URL=<meetup_group_url> claude -p "$(cat functions/scraping-events/scr
   --allowedTools "Bash,Read,Edit,Write" --max-turns 20
 ```
 
-CI: `.github/workflows/weekly-meetup-smoke-test.yml` runs smoke tests every Monday against both a group URL and a specific event URL; on failure it invokes the Claude fix agent and opens a PR. Requires `ANTHROPIC_API_KEY`, `SMOKE_TEST_GROUP_URL`, and `SMOKE_TEST_EVENT_URL` in repository secrets, and "Allow GitHub Actions to create and approve pull requests" enabled in Settings → Actions → General.
+CI: `.github/workflows/weekly-meetup-smoke-test.yml` runs smoke tests every Monday; on failure it invokes the Claude fix agent and opens a PR. Requires "Allow GitHub Actions to create and approve pull requests" enabled in Settings → Actions → General, plus these repository secrets:
+
+- `ANTHROPIC_API_KEY` — for the Claude fix agent
+- `SMOKE_TEST_GROUP_URL` — Meetup group page URL
+- `SMOKE_TEST_EVENT_URL` — specific Meetup event URL
+- `SMOKE_TEST_ONLINE_ONLY_EVENT_URL` — online-only event URL
+- `SMOKE_TEST_HYBRID_EVENT_URL` — hybrid (IRL + online) event URL
+- `SMOKE_TEST_IN_PERSON_EVENT_URL` — in-person event URL
+- `SMOKE_TEST_GROUP_EVENTS_PAGE_URL` — group events listing page URL
+- `SMOKE_TEST_LUMA_EVENT_URL` — Luma event URL (lu.ma or luma.com)
 
 ## Environment
 
