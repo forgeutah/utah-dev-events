@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import fs from 'fs/promises';
 import path from 'path';
-import { isOnlineEvent, categorizeEventByRegion } from '../lib/locationUtils';
+import { isOnlineOnlyEvent, categorizeEventByRegion } from '../lib/locationUtils';
 
 let events: any[] = [];
 
@@ -14,13 +14,13 @@ describe('locationUtils tests using real events from events.fixture.json', () =>
   it('classifies events with explicit "Online event" venue as online', () => {
     const e = events.find(ev => ev.venue_name && String(ev.venue_name).toLowerCase().includes('online'));
     expect(e).toBeTruthy();
-    if (e) expect(isOnlineEvent(e)).toBe(true);
+    if (e) expect(isOnlineOnlyEvent(e)).toBe(true);
   });
 
   it('does not classify clearly physical events as online (address in location)', () => {
     const e = events.find(ev => ev.location && /\d/.test(String(ev.location)));
     expect(e).toBeTruthy();
-    if (e) expect(isOnlineEvent(e)).toBe(false);
+    if (e) expect(isOnlineOnlyEvent(e)).toBe(false);
   });
 
   it('does not classify hybrid events (venue + online link in description) as online when venue contains physical address', () => {
@@ -34,7 +34,7 @@ describe('locationUtils tests using real events from events.fixture.json', () =>
     expect(e).toBeTruthy();
     if (e) {
       // because the venue contains a physical address we expect our heuristics to prefer in-person
-      expect(isOnlineEvent(e)).toBe(false);
+      expect(isOnlineOnlyEvent(e)).toBe(false);
     }
   });
 
