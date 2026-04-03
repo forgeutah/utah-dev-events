@@ -42,6 +42,7 @@ _URL_VARS: list[tuple[str, str | None, int]] = [
     ("HYBRID_EVENT_URL", "physical", 1),
     ("IN_PERSON_EVENT_URL", "physical", 1),
     ("GROUP_EVENTS_PAGE_URL", None, 0),
+    ("LUMA_EVENT_URL", None, 1),
 ]
 
 

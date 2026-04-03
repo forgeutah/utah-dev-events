@@ -40,6 +40,7 @@ jobs:
           HYBRID_EVENT_URL: ${{ secrets.SMOKE_TEST_HYBRID_EVENT_URL }}
           IN_PERSON_EVENT_URL: ${{ secrets.SMOKE_TEST_IN_PERSON_EVENT_URL }}
           GROUP_EVENTS_PAGE_URL: ${{ secrets.SMOKE_TEST_GROUP_EVENTS_PAGE_URL }}
+          LUMA_EVENT_URL: ${{ secrets.SMOKE_TEST_LUMA_EVENT_URL }}
         run: uv run pytest tests/smoke/test_meetup_local_urls.py -v --tb=short
 
   claude-fix:
