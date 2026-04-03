@@ -1,6 +1,8 @@
 import asyncio
 import logging
+import os
 import random
+import shutil
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
@@ -18,10 +20,19 @@ _HEADLESS = not get_env().debug
 _TRACES_DIR = Path("traces")
 
 
+def _chromium_executable() -> str | None:
+    """Return a system chromium path if Playwright's bundled one isn't installed."""
+    return os.environ.get("PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH") or shutil.which("chromium") or shutil.which("chromium-browser")
+
+
 @asynccontextmanager
 async def launch_browser() -> AsyncGenerator[Browser]:
     async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=_HEADLESS, channel="chromium")
+        executable = _chromium_executable()
+        if executable:
+            browser = await pw.chromium.launch(headless=_HEADLESS, executable_path=executable)
+        else:
+            browser = await pw.chromium.launch(headless=_HEADLESS, channel="chromium")
         try:
             yield browser
         finally:
