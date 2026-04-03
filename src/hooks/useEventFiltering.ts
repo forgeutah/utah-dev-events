@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { parseISO, isSameDay, startOfToday } from "date-fns";
 import { Event, Group, UtahRegion } from "@/types/events";
-import { categorizeEventByRegion, isOnlineEvent } from "../../lib/locationUtils";
+import { categorizeEventByRegion, isOnlineOnlyEvent } from "../../lib/locationUtils";
 import { getDeduplicatedEvents } from "@/utils/eventDeduplication";
 
 export const useEventFiltering = (
@@ -67,7 +67,7 @@ export const useEventFiltering = (
       }
       
       // Filter out online events if excludeOnline is true
-      if (excludeOnline && isOnlineEvent(event)) {
+      if (excludeOnline && isOnlineOnlyEvent(event)) {
         console.log('Event filtered out - online event:', event.title);
         return false;
       }
