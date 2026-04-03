@@ -1,4 +1,5 @@
 /traces/
+smoke-results.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -131,6 +132,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.local
 .venv
 env/
 venv/

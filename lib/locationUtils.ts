@@ -89,7 +89,7 @@ export function categorizeEventByRegion(event: Record<string, any>): UtahRegion 
   return 'Unknown';
 }
 
-export function isOnlineEvent(event: Record<string, any>): boolean {
+export function isOnlineOnlyEvent(event: Record<string, any>): boolean {
   // Prefer venue/location fields as stronger signals for in-person vs online
   const venueText = [event.location, event.venue_name].filter(Boolean).join(' ').toLowerCase();
   const contentText = [event.description, event.title].filter(Boolean).join(' ').toLowerCase();
@@ -112,6 +112,10 @@ export function isOnlineEvent(event: Record<string, any>): boolean {
     const hasPhysical = /\d{1,5}\s+\w+/.test(venueText) || /\b(street|st\.|avenue|ave\.|road|rd\.|lane|ln\.|drive|dr\.)\b/i.test(venueText);
     if (hasPhysical) return false;
   }
+
+  // A populated city or postal_code is an unambiguous physical presence signal —
+  // don't let a URL in the description override it.
+  if (event.city || event.postal_code) return false;
 
   // If no venue/location signals, consider title/description but use stricter matching
   if (contentText) {

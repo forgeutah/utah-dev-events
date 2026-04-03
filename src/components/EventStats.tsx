@@ -2,7 +2,7 @@ import { Calendar, Users, Database, TrendingUp, Globe, Building2 } from "lucide-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Event, Group } from "@/types/events";
-import { isOnlineEvent } from "../../lib/locationUtils";
+import { isOnlineOnlyEvent } from "../../lib/locationUtils";
 
 
 interface EventStatsProps {
@@ -50,7 +50,7 @@ export const EventStats = ({ events, groups, filteredCount, hasActiveFilters = f
   });
 
   // Calculate online vs in-person events
-  const onlineEvents = events.filter(event => isOnlineEvent(event)).length;
+  const onlineEvents = events.filter(event => isOnlineOnlyEvent(event)).length;
   const inPersonEvents = totalEvents - onlineEvents;
 
 

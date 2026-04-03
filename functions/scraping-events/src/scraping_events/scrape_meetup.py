@@ -20,9 +20,12 @@ def is_meetup_url(url_parsed: ParsedUrl) -> bool:
 
 
 def _extract_group_url(url: str) -> str | None:
-    """If url is an event URL, return the group base URL. Otherwise return None."""
+    """If url is a specific event URL, return the group base URL. Otherwise return None.
+
+    Matches /group-slug/events/12345 but not /group-slug/events/ (which is a group listing page).
+    """
     parsed = urlparse(url)
-    match = re.match(r"(/[^/]+)/events/", parsed.path)
+    match = re.match(r"(/[^/]+)/events/\d+", parsed.path)
     if match:
         return f"{parsed.scheme}://{parsed.netloc}{match.group(1)}/"
     return None
@@ -51,7 +54,8 @@ async def _get_upcoming_event_urls(page_wrapper: PageWrapper, starting_url: str,
             return [starting_url]
         LOGGER.info(f"Recurring event URL normalised to group URL: {starting_url} -> {group_url}")
     else:
-        group_url = starting_url
+        # Normalise a group events listing URL (e.g. meetup.com/group/events/) to the group base URL
+        group_url = re.sub(r"/events/?$", "/", starting_url)
 
     LOGGER.info(f"Looking for upcoming events listed on {group_url}")
     await page_wrapper.navigate(group_url)
@@ -145,7 +149,7 @@ async def _get_event_details(page_wrapper: PageWrapper, event_url: str) -> Event
     is_online = (await page.get_by_test_id("attend-online-btn").count()) > 0 or event_type == "ONLINE"
     no_location = (await page.get_by_test_id("needs-location").count()) > 0
 
-    if is_irl and not is_online:
+    if is_irl:
         venue_data = next_event_data.get("venue") or {}
         venue_name = (venue_data.get("name") or "").strip() or None
         addr_parts = [venue_data.get("address", ""), venue_data.get("city", ""), (venue_data.get("state") or "").upper()]

@@ -32,15 +32,15 @@ jobs:
       - name: Install Playwright browsers
         run: uv run playwright install chromium --with-deps
 
-      - name: Run smoke tests (group URL)
+      - name: Run typed URL smoke tests
         env:
-          SMOKE_TEST_URL: ${{ secrets.SMOKE_TEST_GROUP_URL }}
-        run: uv run pytest tests/smoke/ -v --tb=short
-
-      - name: Run smoke tests (event URL)
-        env:
-          SMOKE_TEST_URL: ${{ secrets.SMOKE_TEST_EVENT_URL }}
-        run: uv run pytest tests/smoke/ -v --tb=short
+          GROUP_URL: ${{ secrets.SMOKE_TEST_GROUP_URL }}
+          EVENT_URL: ${{ secrets.SMOKE_TEST_EVENT_URL }}
+          ONLINE_ONLY_EVENT_URL: ${{ secrets.SMOKE_TEST_ONLINE_ONLY_EVENT_URL }}
+          HYBRID_EVENT_URL: ${{ secrets.SMOKE_TEST_HYBRID_EVENT_URL }}
+          IN_PERSON_EVENT_URL: ${{ secrets.SMOKE_TEST_IN_PERSON_EVENT_URL }}
+          GROUP_EVENTS_PAGE_URL: ${{ secrets.SMOKE_TEST_GROUP_EVENTS_PAGE_URL }}
+        run: uv run pytest tests/smoke/test_meetup_local_urls.py -v --tb=short
 
   claude-fix:
     runs-on: ubuntu-latest

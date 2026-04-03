@@ -1,7 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.171.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { categorizeEventByRegion, isOnlineEvent } from "../../../lib/locationUtils.ts";
+import { categorizeEventByRegion, isOnlineOnlyEvent } from "../../../lib/locationUtils.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -97,7 +97,7 @@ serve(async (req: Request) => {
       }
 
       // Apply online exclusion filter
-      if (excludeOnline && isOnlineEvent(event)) {
+      if (excludeOnline && isOnlineOnlyEvent(event)) {
         return false;
       }
       
