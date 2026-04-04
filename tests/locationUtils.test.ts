@@ -42,6 +42,15 @@ describe('locationUtils shared tests', () => {
     expect(isOnlineOnlyEvent(event)).toBe(false);
   });
 
+  it('does not classify hybrid event as online when venue_name is a physical place', () => {
+    const event = {
+      title: 'Go Figure: A Tour of the math Package',
+      venue_name: 'Weave',
+      description: 'Video call link: https://meet.google.com/dkn-ekxb-qrj Or dial: (US) +1 336-673-3641'
+    };
+    expect(isOnlineOnlyEvent(event)).toBe(false);
+  });
+
   it('exports UTAH_REGIONS array', () => {
     expect(Array.isArray(UTAH_REGIONS)).toBe(true);
     expect(UTAH_REGIONS.length).toBeGreaterThan(0);

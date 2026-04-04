@@ -111,6 +111,11 @@ export function isOnlineOnlyEvent(event: Record<string, any>): boolean {
     // Presence of a physical address or city name in venueText should strongly indicate in-person
     const hasPhysical = /\d{1,5}\s+\w+/.test(venueText) || /\b(street|st\.|avenue|ave\.|road|rd\.|lane|ln\.|drive|dr\.)\b/i.test(venueText);
     if (hasPhysical) return false;
+
+    // A venue_name that didn't match any online/platform indicators above is a real
+    // physical venue (e.g. "Weave", "The Salt Mine"). Treat it as in-person even if
+    // the description contains a meeting link (hybrid event).
+    if (event.venue_name) return false;
   }
 
   // A populated city or postal_code is an unambiguous physical presence signal —
