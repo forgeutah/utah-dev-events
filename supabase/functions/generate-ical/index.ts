@@ -2,17 +2,12 @@
 import { serve } from "https://deno.land/std@0.171.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { categorizeEventByRegion, isOnlineOnlyEvent } from "../../../lib/locationUtils.ts";
+import { formatICalDate } from "../../../lib/feedUtils.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-// Helper function to format date for iCal with Mountain Time
-function formatICalDate(date: string, time?: string): string {
-  const dateStr = time ? `${date}T${time.padStart(5, '0')}:00` : `${date}T00:00:00`;
-  return dateStr.replace(/[-:]/g, '');
-}
 
 // Helper function to escape iCal text
 function escapeICalText(text: string): string {
