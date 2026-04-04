@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.171.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { categorizeEventByRegion, isOnlineOnlyEvent } from "../../../lib/locationUtils.ts";
+import { formatRssDate } from "../../../lib/feedUtils.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,20 +17,6 @@ function escapeXml(text: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-}
-
-// Helper function to format date for RSS with proper Mountain Time handling
-function formatRssDate(date: string, time?: string): string {
-  // Parse the date and time, treating as Mountain Time
-  const timeStr = time || '00:00';
-  const dateTimeStr = `${date}T${timeStr}:00`;
-  
-  // Create a date object
-  const dateObj = new Date(dateTimeStr);
-  
-  // Convert to RFC 2822 format for RSS feeds
-  // This will output in the format: "Wed, 02 Oct 2002 13:00:00 GMT"
-  return dateObj.toUTCString();
 }
 
 serve(async (req) => {
