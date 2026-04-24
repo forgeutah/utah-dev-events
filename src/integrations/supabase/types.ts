@@ -31,6 +31,8 @@ export type Database = {
           link: string | null
           location: string | null
           postal_code: string | null
+          recording_status: string | null
+          recording_url: string | null
           remote_id: string | null
           start_time: string | null
           state_province: string | null
@@ -55,6 +57,8 @@ export type Database = {
           link?: string | null
           location?: string | null
           postal_code?: string | null
+          recording_status?: string | null
+          recording_url?: string | null
           remote_id?: string | null
           start_time?: string | null
           state_province?: string | null
@@ -79,6 +83,8 @@ export type Database = {
           link?: string | null
           location?: string | null
           postal_code?: string | null
+          recording_status?: string | null
+          recording_url?: string | null
           remote_id?: string | null
           start_time?: string | null
           state_province?: string | null

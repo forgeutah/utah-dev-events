@@ -215,6 +215,9 @@ serve(async (req) => {
               }
             }
 
+          // DO NOT add `recording_url` or `recording_status` to this object.
+          // These columns hold user-submitted video links and must not be
+          // clobbered on re-scrape. See tests/scraperFieldLists.test.ts.
           const eventData = {
             group_id: groupId,
             title: scrapedEvent.title,

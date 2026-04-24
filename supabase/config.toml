@@ -15,3 +15,6 @@ verify_jwt = false
 
 [functions.scrape-single-meetup]
 verify_jwt = false
+
+[functions.submit-recording]
+verify_jwt = false
