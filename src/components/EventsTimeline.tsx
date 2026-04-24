@@ -2,13 +2,22 @@
 import React from "react";
 import { format, parseISO, isSameDay, isToday, isTomorrow, isYesterday, isPast, formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, ExternalLink } from "lucide-react";
+import { MapPin, Clock, ExternalLink, MoreVertical, Calendar, Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { buildGoogleCalendarUrl } from "@/utils/calendarLinks";
+import { buildEventIcalUrl } from "@/utils/eventUrls";
 
 interface Event {
   id: string;
   title: string;
   event_date: string;
   start_time?: string;
+  end_time?: string;
   location?: string;
   venue_name?: string;
   address_line_1?: string;
@@ -109,6 +118,61 @@ const getEventTags = (event: Event) => {
   // Return group tags if event has no tags
   return event.groups?.tags || [];
 };
+
+function downloadIcsFor(eventId: string) {
+  const a = document.createElement("a");
+  a.href = buildEventIcalUrl(eventId);
+  a.download = `${eventId}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function AddToCalendarMenu({ event }: { event: Event }) {
+  return (
+    <div className="absolute top-3 right-3">
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label={`Add "${event.title}" to calendar`}
+          onClick={(e) => e.stopPropagation()}
+          className="flex h-11 w-11 items-center justify-center rounded-md bg-white/5 text-white/70 border border-white/10 hover:bg-white/15 hover:text-white hover:border-white/20 data-[state=open]:bg-white/15 data-[state=open]:text-white data-[state=open]:border-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+        >
+          <MoreVertical className="w-4 h-4" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" collisionPadding={8}>
+          <DropdownMenuItem asChild>
+            <a
+              href={buildGoogleCalendarUrl(event)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Add to Google Calendar
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              downloadIcsFor(event.id);
+            }}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Add to Apple Calendar
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              downloadIcsFor(event.id);
+            }}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Download .ics
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
 
 export function EventsTimeline({ events, isLoading, error, visibleCount, onShowMore }: EventsTimelineProps) {
   if (isLoading) {
@@ -212,11 +276,13 @@ export function EventsTimeline({ events, isLoading, error, visibleCount, onShowM
               return (
                 <div
                   key={event.id}
-                  className="bg-gradient-to-br from-[#22243A]/80 via-[#23283B]/80 to-[#383B53]/80 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-primary/30 transition-all duration-200"
+                  className="relative bg-gradient-to-br from-[#22243A]/80 via-[#23283B]/80 to-[#383B53]/80 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-primary/30 transition-all duration-200"
                 >
+                  <AddToCalendarMenu event={event} />
+
                   {/* Time and duration */}
                   {timeDisplay && (
-                    <div className="flex items-center gap-2 text-sm text-primary mb-3">
+                    <div className="flex items-center gap-2 text-sm text-primary mb-3 pr-12">
                       <Clock className="w-4 h-4" />
                       <span className="font-medium">{timeDisplay}</span>
                     </div>
@@ -224,13 +290,13 @@ export function EventsTimeline({ events, isLoading, error, visibleCount, onShowM
 
                   {/* Group name */}
                   {event.groups?.name && (
-                    <div className="text-sm text-muted-foreground mb-1">
+                    <div className="text-sm text-muted-foreground mb-1 pr-12">
                       {event.groups.name}
                     </div>
                   )}
 
                   {/* Event title */}
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                  <h3 className="text-xl font-semibold text-white mb-2 pr-12">
                     {event.link ? (
                       <a
                         href={event.link}

@@ -1,6 +1,12 @@
 
 import { UtahRegion } from "@/types/events";
 
+const SUPABASE_FUNCTIONS_BASE = "https://gocvjqljtcxtcrwvfwez.supabase.co/functions/v1";
+
+export const buildEventIcalUrl = (eventId: string) => {
+  return `${SUPABASE_FUNCTIONS_BASE}/generate-ical?event=${encodeURIComponent(eventId)}`;
+};
+
 export const generateICalUrl = (selectedGroups: string[], selectedTags: string[], selectedRegions: UtahRegion[], excludeOnline: boolean) => {
   const params = new URLSearchParams();
   if (selectedGroups.length > 0) {
