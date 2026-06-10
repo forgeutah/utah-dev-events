@@ -1,4 +1,10 @@
 
+export const RECORDING_STATUS = {
+  Pending: 'pending',
+  Approved: 'approved',
+} as const;
+export type RecordingStatus = typeof RECORDING_STATUS[keyof typeof RECORDING_STATUS];
+
 export interface Event {
   id: string;
   title: string;
@@ -16,6 +22,8 @@ export interface Event {
   link?: string;
   description?: string;
   tags?: string[];
+  recording_url?: string | null;
+  recording_status?: RecordingStatus | null;
   groups?: {
     name: string;
     status: string;
