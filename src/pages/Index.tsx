@@ -17,6 +17,7 @@ async function fetchUpcomingEvents() {
       title,
       event_date,
       start_time,
+      end_time,
       location,
       venue_name,
       address_line_1,
